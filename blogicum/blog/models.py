@@ -91,12 +91,6 @@ class Post(models.Model):
         blank=False,
         verbose_name='Категория'
     )
-    image = models.ImageField(
-        upload_to='posts',
-        blank=True,
-        verbose_name='Фото',
-        help_text='Загрузите картинку'
-    )
     is_published = models.BooleanField(
         default=True,
         verbose_name='Опубликовано',
@@ -105,6 +99,12 @@ class Post(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Добавлено'
+    )
+    image = models.ImageField(
+        upload_to='posts',
+        blank=True,
+        verbose_name='Фото',
+        help_text='Загрузите картинку'
     )
 
     class Meta:

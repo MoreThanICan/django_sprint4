@@ -3,7 +3,12 @@ from io import BytesIO
 from typing import Tuple
 
 import pytest
-from PIL import Image
+try:
+    from PIL import Image
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+    Image = None
 from django.core.files.images import ImageFile
 from django.db.models import Model
 from django.forms import BaseForm
@@ -82,6 +87,8 @@ def post_of_another_author(
 @pytest.fixture
 def post_with_published_location(
         mixer: Mixer, user, published_location, published_category):
+    if not PIL_AVAILABLE:
+        pytest.skip("Pillow (PIL) is not installed, skipping image tests")
     img = Image.new('RGB', (100, 100), color=(73, 109, 137))
     img_io = BytesIO()
     img.save(img_io, format='JPEG')
