@@ -12,7 +12,7 @@ User = get_user_model()
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('title', 'text', 'pub_date', 'category', 'location', 'image', 'is_published')
+        exclude = ('author', 'created_at')
         widgets = {
             'pub_date': forms.DateTimeInput(
                 format='%Y-%m-%dT%H:%M',
@@ -32,10 +32,9 @@ class PostForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             if self.instance.pub_date:
-                local_tz = pytz.timezone('Asia/Dubai')
+                local_tz = pytz.timezone('Europe/Saratov')
                 local_time = self.instance.pub_date.astimezone(local_tz)
                 self.initial['pub_date'] = local_time.strftime('%Y-%m-%dT%H:%M')
-            # Устанавливаем начальное значение для is_published при редактировании
             self.initial['is_published'] = self.instance.is_published
         self.fields['pub_date'].input_formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M']
         self.fields['location'].queryset = Location.objects.filter(is_published=True).order_by('name')
@@ -44,7 +43,7 @@ class PostForm(forms.ModelForm):
     def clean_pub_date(self):
         pub_date = self.cleaned_data.get('pub_date')
         if pub_date:
-            local_tz = pytz.timezone('Asia/Dubai')
+            local_tz = pytz.timezone('Europe/Saratov')
             if timezone.is_naive(pub_date):
                 pub_date = local_tz.localize(pub_date)
             return pub_date
