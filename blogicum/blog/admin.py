@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils import timezone
 from .models import Category, Comment, Location, Post
 
 
@@ -37,12 +38,21 @@ class PostAdmin(admin.ModelAdmin):
         'location',
         'pub_date',
         'is_published',
+        'is_visible',
         'created_at',
     )
     list_editable = ('is_published',)
     search_fields = ('title', 'text')
     list_filter = ('is_published', 'category', 'location', 'pub_date')
     date_hierarchy = 'pub_date'
+    
+    @admin.display(boolean=True, description='Виден для пользователя')
+    def is_visible(self, obj):
+        return (
+            obj.is_published 
+            and obj.pub_date <= timezone.now()
+            and (obj.category is None or obj.category.is_published)
+        )
 
 
 @admin.register(Comment)

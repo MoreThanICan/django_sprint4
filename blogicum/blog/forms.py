@@ -12,7 +12,7 @@ User = get_user_model()
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
+        fields = ('title', 'text', 'pub_date', 'category', 'location', 'image', 'is_published')
         widgets = {
             'pub_date': forms.DateTimeInput(
                 format='%Y-%m-%dT%H:%M',
@@ -21,7 +21,11 @@ class PostForm(forms.ModelForm):
                     'min': '2000-01-01T00:00',
                     'max': '2099-12-31T23:59'
                 }
-            )
+            ),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
+        labels = {
+            'is_published': 'Виден для всех'
         }
 
     def __init__(self, *args, **kwargs):
@@ -31,6 +35,8 @@ class PostForm(forms.ModelForm):
                 local_tz = pytz.timezone('Asia/Dubai')
                 local_time = self.instance.pub_date.astimezone(local_tz)
                 self.initial['pub_date'] = local_time.strftime('%Y-%m-%dT%H:%M')
+            # Устанавливаем начальное значение для is_published при редактировании
+            self.initial['is_published'] = self.instance.is_published
         self.fields['pub_date'].input_formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M']
         self.fields['location'].queryset = Location.objects.filter(is_published=True).order_by('name')
         self.fields['location'].empty_label = "Выберите местоположение"
